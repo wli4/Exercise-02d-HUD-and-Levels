@@ -5,6 +5,12 @@ export var speed = 2
 
 func _physics_process(delta):
 	position += get_input()*speed
+	if Input.is_action_pressed("shoot") and not $Laser.is_casting:
+		$Laser.fire(get_viewport().get_mouse_position())
+	elif $Laser.is_casting:
+		$Laser.stop()
+	
+
 
 func get_input():
 	var input_dir = Vector2(0,0)
@@ -16,4 +22,4 @@ func get_input():
 
 
 func _on_Damage_body_entered(body):
-	body.queue_free()
+	body.die()
