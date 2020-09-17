@@ -13,3 +13,7 @@ func get_input():
 	if Input.is_action_pressed("right"):
 		input_dir.x += 1
 	return input_dir.rotated(rotation)
+
+
+func _on_Damage_body_entered(body):
+	body.queue_free()

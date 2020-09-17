@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Assets/starfield.webm" type="VideoStream" id=1]
 [ext_resource path="res://Assets/Background.gd" type="Script" id=2]
 [ext_resource path="res://Player/Player.gd" type="Script" id=3]
 [ext_resource path="res://Assets/player.png" type="Texture" id=4]
+[ext_resource path="res://Assets/cow.png" type="Texture" id=5]
+[ext_resource path="res://Enemy/Enemy.gd" type="Script" id=6]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 17.7289, 31.6387 )
@@ -39,8 +41,27 @@ texture = ExtResource( 4 )
 scale = Vector2( 0.2, 0.2 )
 polygon = PoolVector2Array( 13.5, -148.5, 13.5, -146.2, 20.5, -138.3, 20.5, -136, 29.5, -116.9, 29.5, -112.5, 37.5, -81.8, 37.5, 29.5, 78.5, 92.9, 78.5, 106.5, 77.6, 106.5, 38.4, 117, 20.7, 154.5, -21.7, 154.5, -37.8, 118.5, -40.8, 118.5, -78.5, 107.6, -78.5, 92.9, -38.5, 32.9, -38.5, -82.8, -26, -129.5, -24.7, -129.5, -17.8, -144.5, -16.4, -144.5, -7.5, -154.2, 5.5, -154.5 )
 
-[node name="Area2D" type="Area2D" parent="Player_area/Player"]
+[node name="Damage" type="Area2D" parent="Player_area/Player"]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player_area/Player/Area2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player_area/Player/Damage"]
 shape = SubResource( 1 )
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Enemy" type="KinematicBody2D" parent="Enemies"]
+position = Vector2( 518, 2 )
+scale = Vector2( 0.25, 0.25 )
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="cow" type="Sprite" parent="Enemies/Enemy"]
+position = Vector2( 0, 3 )
+texture = ExtResource( 5 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Enemies/Enemy"]
+position = Vector2( 0, 3 )
+polygon = PoolVector2Array( 70.5, -66.9, 76.5, -61.6, 76.5, -37, 67.5, -26.3, 67.5, -24.3, 72.5, -8.3, 72.5, 8.2, 70.2, 21, 68.7, 21, 55.7, 47, 54.3, 47, 41.3, 60, 39, 60, 24.6, 68, -23.6, 68, -36.5, 63.4, -36.5, 62, -54.5, 48, -54.5, 45.8, -62.5, 37.8, -62.5, 35.5, -70.5, 19.5, -70.5, 15, -72.7, -10, -71.2, -10, -67.9, -25.6, -76.5, -35.9, -76.5, -62, -71.4, -68, -68.9, -68, -31.3, -68, -28.2, -67, -26, -67, -24.4, -68, 24.4, -68, 26, -67, 28, -67, 30, -68, 70.5, -68 )
 [connection signal="finished" from="Background" to="Background" method="_on_Background_finished"]
+[connection signal="body_entered" from="Player_area/Player/Damage" to="Player_area/Player" method="_on_Damage_body_entered"]
