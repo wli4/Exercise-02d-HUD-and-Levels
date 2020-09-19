@@ -14,11 +14,131 @@ In the viewport, you should see a *very* rough 2D space shooter-style game. The 
 Your assignment for this exercise is to provide the following: change the default scene to a main menu that offers options to Play and Quit. The play button should load the Game.tscn scene. Add an AutoLoad HUD scene that displays score and health as labels. When the score reaches 100, show the Level node; if the player touches the Level, the scene should change to level2.tscn (which you will need to create), which is identical to game.tscn, except without the Level node and the cows are replaced by narwhals. Add an end-game screen that appears when the player's health reaches zero.
 
 You can change to a new scene in Godot with a simple statement:
+
 ```
 get_tree().change_scene("res://path/to/scene.tscn")
 ```
 
 I will take a significant time in class to walk through the details of this exercise. That demonstration will also be posted to youtube.
+
+The instructions are as follows:
+
+## HUD
+ * Right-click on the Game node and Add Child Node. Select Control. Rename the new Control node "HUD".
+ * Right-click on the HUD node and Add Child Node. Select ColorRect. In the Inspector panel, Select Control->Rect->Size. Set it to x=1024, y=40. Select ColorRect->Color. Set A=64
+ * Right-click on the HUD node and Add Child Node. Select Label. Rename the new Label node "Health". In the Inspector panel, select Control->Margin and set Left=10. select select Control->Rect->Size. Set it to x=502, y=40. Select Label->Text. Set it to "Health: ". Set Valign=Center. Select Control->Custom Fonts->Font->New Dynamic Font. Select Font again, and select Edit. In the DynamicFont menu that appears, Select Font->FontData and choose Load. Open res://Assets/BebasNeueRegular.otf/. Select DynamicFont->Settings and set Size=20.
+ * Right-click on the Health node and Duplicate. Rename the Health2 node "Score". In the Inspector panel, set Label->Text to "Score: ". Set Label->Align=Right. In  Control->Rect set Position.x=512
+ * Choose the Script Workspace, and select File->New Script. Name the script Global.gd. Replace the contents of that script (make sure you use tabs to indent it) with:
+
+```
+extends Node
+
+var score = 0
+var health = 100
+var level = 0
+
+func _process(delta):
+	if Input.is_action_pressed("quit"):	
+		get_tree().quit()
+```
+ * Save the script.
+
+ * In Project Settings, select the AutoLoad tab. In the path field, select res://Global.gd. The Node Name should be Global. Press Add.
+ * Right-click on the HUD node and Attach Script. Press the file icon next to Path. Create a new Folder: HUD. Save the new script to res://HUD/HUD.gd. Replace the contents of that script with:
+ 
+```
+extends Control
+
+onready var global = get_node("/root/Global")
+
+func _ready():
+	update_score(0)
+	update_health(0)
+
+
+func update_score(s):
+	global.score += s
+	$Score.text = "Score: " + str(global.score)
+	if global.score >= 100 and global.level != 2:
+		get_node("/Game/Level").show()
+
+func update_health(h):
+	global.health += h
+	$Health.text = "Health: " + str(global.health)
+	if global.health <= 0:
+		get_tree().change_scene("res://Menu/Die.tscn")
+
+ ```
+
+## Changing levels and Level 2
+
+ * Select the Level node. Select the Node panel (the tab next to the Inspector panel)->Signals. Double-click on the body_entered signal and select Level (Connecting from). Replace the `func _on_Level_body_entered(body):` method with:
+
+ ```
+func _on_Level_body_entered(body):
+	 get_tree().change_scene("res://Level/Level2.tscn")
+ ```
+
+* Save the changes.
+
+* In the Scene menu, select Save Scene As…. Save it as res://Level/Level2.tscn
+* In the new Level2 scene, right-click on the Level node and select Delete Node(s). Confirm that you want to delete it
+* Next to the Enemies node, click on the script icon. Viewing Enemies.gd in the Script Workspace, File->Save As… res://Enemies/Enemies2.gd
+* Change line 3 of Enemies2.gd to: `onready var Enemy = load("res://Enemy/Enemy2.tscn")
+* In the Scene menu, Open Scene. Open res://Enemy/Enemy.tscn
+* Again, in the Scene menu, Save Scene As… res://Enemy/Enemy2.tscn
+* Right click on the cow node and select Delete Node(s). Also, delete the CollisionPolygon2D.
+* Drag the narwhal.png image out of the Assets folder into the Workspace. In the Inspector panel, Node2D->Transform->Position set both x and y = 0
+* In the toolbar, select Sprite->Create CollisionPolygon2D Sibling
+* Save the scene
+
+## Main menu
+
+ * In the Scene menu, select New Scene. In the Scene panel, Create Root Node: select User Interface. Change the name of the Control node to "Menu"
+ * Right-click on the Menu node and Add Child Node. Select Label. In the Inspector Panel, set the Label->Text="Welcome!". Label->Align=Center, Label->Valign=Center. Control->Rect->Size x=1024, y=300.  Select Control->Custom Fonts->Font->New Dynamic Font. Select Font again, and select Edit. In the DynamicFont menu that appears, Select Font->FontData and choose Load. Open res://Assets/BebasNeueRegular.otf/. Select DynamicFont->Settings and set Size=60.
+ * Right-click on the Menu node and Add Child Node. Select Button. Change the name of the node to "Play". In the Inspector Panel, set the Button->Text="Play". Control->Rect->Position x=412, y=300. Control->Rect->Size x=200, y=60.  Select Control->Custom Fonts->Font->New Dynamic Font. Select Font again, and select Edit. In the DynamicFont menu that appears, Select Font->FontData and choose Load. Open res://Assets/BebasNeueRegular.otf/. Select DynamicFont->Settings and set Size=24.
+ * Right-click on the Play node and Duplicate. Change the name of the Play2 node to "Quit". In the Inspector Panel, set the Label->Text="Quit". Control->Rect->Position y=380.
+ * Right-click on the Menu node and Attach Script. Create a new Menu folder, and save the script as res://Menu/Menu.gd
+ * Select the Play node and open the Node panel. Double-click on the pressed() signal and attach it to the Menu script
+ * Select the Quit node and open the Node panel. Double-click on the pressed() signal and attach it to the Menu script
+ * Replace the contents of Menu.gd with the following:
+
+```
+extends Control
+
+func _on_Play_pressed():
+   get_tree().change_scene("res://Game.tscn")
+
+func _on_Quit_pressed():
+  get_tree().quit()
+```
+
+ * Save the scene as res://Menu/Menu.tscn
+ * Open the Project Settings. In General->Appliction->Run, set the main scene as res://Menu/Menu.tscn
+
+## End-game screen
+
+ * In the Scene menu, select New Scene. In the Scene panel, Create Root Node: select User Interface. Change the name of the Control node to "Menu"
+ * Right-click on the Menu node and Add Child Node. Select Label. In the Inspector Panel, set the Label->Text="You Died!". Label->Align=Center, Label->Valign=Center. Control->Rect->Size x=1024, y=300.  Select Control->Custom Fonts->Font->New Dynamic Font. Select Font again, and select Edit. In the DynamicFont menu that appears, Select Font->FontData and choose Load. Open res://Assets/BebasNeueRegular.otf/. Select DynamicFont->Settings and set Size=60.
+ * Right-click on the Menu node and Add Child Node. Select Button. Change the name of the node to "Play". In the Inspector Panel, set the Button->Text="Play Again?". Control->Rect->Position x=412, y=300. Control->Rect->Size x=200, y=60.  Select Control->Custom Fonts->Font->New Dynamic Font. Select Font again, and select Edit. In the DynamicFont menu that appears, Select Font->FontData and choose Load. Open res://Assets/BebasNeueRegular.otf/. Select DynamicFont->Settings and set Size=24.
+ * Right-click on the Play node and Duplicate. Change the name of the Play2 node to "Quit". In the Inspector Panel, set the Label->Text="Quit". Control->Rect->Position y=380.
+ * Right-click on the Menu node and Attach Script. Create a new Menu folder, and save the script as res://Menu/Die.gd
+ * Select the Play node and open the Node panel. Double-click on the pressed() signal and attach it to the Menu script
+ * Select the Quit node and open the Node panel. Double-click on the pressed() signal and attach it to the Menu script
+ * Replace the contents of Menu.gd with the following:
+
+```
+extends Control
+
+func _on_Play_pressed():
+  get_tree().change_scene("res://Game.tscn")
+
+func _on_Quit_pressed():
+  get_tree().quit()
+```
+
+ * Save the scene as res://Menu/Die.tscn
+  
 
 Test the game. You should be able to start the game, go to the second level, and then see the end-game screen when the health goes to zero.
 
@@ -57,4 +177,3 @@ None
 Jason Francis
 
 ```
-
