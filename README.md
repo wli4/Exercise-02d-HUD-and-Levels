@@ -60,7 +60,8 @@ func update_score(s):
 	global.score += s
 	$Score.text = "Score: " + str(global.score)
 	if global.score >= 100 and global.level != 2:
-		get_node("/Game/Level").show()
+		get_node("/root/Game/Level").show()
+		get_node("/root/Game/Level").monitoring = true
 
 func update_health(h):
 	global.health += h
@@ -72,7 +73,7 @@ func update_health(h):
 
 ## Changing levels and Level 2
 
- * Select the Level node. Select the Node panel (the tab next to the Inspector panel)->Signals. Double-click on the body_entered signal and select Level (Connecting from). Replace the `func _on_Level_body_entered(body):` method with:
+ * Select the Level node. In the Inspector, uncheck Monitoring. Select the Node panel (the tab next to the Inspector panel)->Signals. Double-click on the body_entered signal and select Level (Connecting from). Replace the `func _on_Level_body_entered(body):` method with:
 
  ```
 func _on_Level_body_entered(body):
@@ -86,6 +87,10 @@ func _on_Level_body_entered(body):
 * Next to the Enemies node, click on the script icon. Viewing Enemies.gd in the Script Workspace, File->Save As… res://Enemies/Enemies2.gd
 * Change line 3 of Enemies2.gd to: `onready var Enemy = load("res://Enemy/Enemy2.tscn")
 * In the Scene menu, Open Scene. Open res://Enemy/Enemy.tscn
+* Open the Enemy.gd script. On line 20 (the first line of the die() method), add the following:
+```
+	HUD.update_score(points)
+```
 * Again, in the Scene menu, Save Scene As… res://Enemy/Enemy2.tscn
 * Right click on the cow node and select Delete Node(s). Also, delete the CollisionPolygon2D.
 * Drag the narwhal.png image out of the Assets folder into the Workspace. In the Inspector panel, Node2D->Transform->Position set both x and y = 0
@@ -130,15 +135,23 @@ func _on_Quit_pressed():
 ```
 extends Control
 
+onready var global = get_node("/root/Global")
+
 func _on_Play_pressed():
-  get_tree().change_scene("res://Game.tscn")
+	global.score = 0
+	global.health = 100
+	global.level = 1
+	get_tree().change_scene("res://Game.tscn")
 
 func _on_Quit_pressed():
-  get_tree().quit()
+	get_tree().quit()
 ```
 
  * Save the scene as res://Menu/Die.tscn
-  
+ * Finally, open the Player.gd script. On line 26 (the first line of the `_on_Damage_body_entered(body)` method), add the following line:
+ ```
+ 	HUD.update_health(-body.damage)
+ ```
 
 Test the game. You should be able to start the game, go to the second level, and then see the end-game screen when the health goes to zero.
 
