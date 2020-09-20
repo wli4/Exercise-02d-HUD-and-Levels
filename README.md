@@ -73,11 +73,17 @@ func update_health(h):
 
 ## Changing levels and Level 2
 
- * Select the Level node. In the Inspector, uncheck Monitoring. Select the Node panel (the tab next to the Inspector panel)->Signals. Double-click on the body_entered signal and select Level (Connecting from). Replace the `func _on_Level_body_entered(body):` method with:
+ * Select the Level node. In the Inspector, uncheck Monitoring. Select the Node panel (the tab next to the Inspector panel)->Signals. Double-click on the body_entered signal and select Level (Connecting from). Replace the Level.gd script with the following: 
 
  ```
+extends Area2D
+
+onready var global = get_node("/root/Global")
+
 func _on_Level_body_entered(body):
-	 get_tree().change_scene("res://Level/Level2.tscn")
+	global.level = 2
+	get_tree().change_scene("res://Level/Level2.tscn")
+
  ```
 
 * Save the changes.
@@ -87,9 +93,33 @@ func _on_Level_body_entered(body):
 * Next to the Enemies node, click on the script icon. Viewing Enemies.gd in the Script Workspace, File->Save As… res://Enemies/Enemies2.gd
 * Change line 3 of Enemies2.gd to: `onready var Enemy = load("res://Enemy/Enemy2.tscn")
 * In the Scene menu, Open Scene. Open res://Enemy/Enemy.tscn
-* Open the Enemy.gd script. On line 20 (the first line of the die() method), add the following:
+* Open the Enemy.gd script. Replace the contents of the script with the following:
 ```
+extends KinematicBody2D
+
+onready var HUD = get_node("/root/Game/HUD")
+
+export var speed = Vector2(0,3)
+export var health = 100
+export var points = 10
+export var damage = 50
+
+onready var Explosion = load("res://Explosion/Explosion.tscn")
+
+
+func _physics_process(delta):
+	position += speed
+
+	if position.y > get_viewport().size.y + 100:
+		queue_free()
+
+func die():
 	HUD.update_score(points)
+	var explosion = Explosion.instance()
+	explosion.position = position
+	get_node("/root/Game/Explosions").add_child(explosion)
+	explosion.get_node("Animation").play()
+	queue_free()
 ```
 * Again, in the Scene menu, Save Scene As… res://Enemy/Enemy2.tscn
 * Right click on the cow node and select Delete Node(s). Also, delete the CollisionPolygon2D.
@@ -148,9 +178,35 @@ func _on_Quit_pressed():
 ```
 
  * Save the scene as res://Menu/Die.tscn
- * Finally, open the Player.gd script. On line 26 (the first line of the `_on_Damage_body_entered(body)` method), add the following line:
+ * Finally, open the Player.gd script. Replace the contents of the script with the following:
  ```
- 	HUD.update_health(-body.damage)
+extends KinematicBody2D
+
+onready var HUD = get_node("/root/Game/HUD")
+export var speed = 2
+
+
+func _physics_process(delta):
+	position += get_input()*speed
+	if Input.is_action_pressed("shoot") and not $Laser.is_casting:
+		$Laser.fire(get_viewport().get_mouse_position())
+	elif $Laser.is_casting:
+		$Laser.stop()
+	
+
+
+func get_input():
+	var input_dir = Vector2(0,0)
+	if Input.is_action_pressed("left"):
+		input_dir.x -= 1
+	if Input.is_action_pressed("right"):
+		input_dir.x += 1
+	return input_dir.rotated(rotation)
+
+
+func _on_Damage_body_entered(body):
+	HUD.update_health(-body.damage)
+	body.die()
  ```
 
 Test the game. You should be able to start the game, go to the second level, and then see the end-game screen when the health goes to zero.
