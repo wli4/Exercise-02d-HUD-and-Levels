@@ -16,12 +16,8 @@ _global_script_class_icons={
 [application]
 
 config/name="HUD and Levels"
-run/main_scene="res://Menu/Menu.tscn"
+run/main_scene="res://Game.tscn"
 config/icon="res://icon.png"
-
-[autoload]
-
-Global="*res://Global.gd"
 
 [input]
 
