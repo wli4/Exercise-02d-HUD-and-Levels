@@ -1,9 +1,8 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Assets/BebasNeueRegular.otf" type="DynamicFontData" id=1]
 [ext_resource path="res://HUD/HUD.gd" type="Script" id=2]
 [ext_resource path="res://Player/Player.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Assets/level.png" type="Texture" id=4]
 [ext_resource path="res://Level/Level.gd" type="Script" id=5]
 [ext_resource path="res://Enemy/Enemies.gd" type="Script" id=8]
 
@@ -36,11 +35,10 @@ __meta__ = {
 
 [node name="level" type="Sprite" parent="Level"]
 position = Vector2( 1.5, 1.8 )
-texture = ExtResource( 4 )
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Level"]
 position = Vector2( 1.5, 1.8 )
-polygon = PoolVector2Array( 29.5, -40.8, 29.5, -39.4, 41.5, -28.4, 41.5, -26.1, 45.5, -20.1, 45.5, 19.2, 40.8, 29.5, 39.4, 29.5, 28.4, 41.5, 26.1, 41.5, 20.1, 45.5, -20.7, 45.5, -29.5, 40.7, -29.5, 39.4, -42.5, 27.4, -42.5, 25.1, -45.5, 20.3, -45.5, -19.5, -41.9, -28.5, -40.5, -28.5, -32.5, -38.5, -30, -38.5, -18.7, -45.5, 19.2, -45.5 )
+polygon = PoolVector2Array( 649.5, 47.7, -349.5, 45.7, -352.5, -41.3, 647.5, -35.3 )
 
 [node name="HUD" type="Control" parent="."]
 margin_right = 40.0
